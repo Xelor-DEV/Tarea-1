@@ -1,19 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class AnimatorController : MonoBehaviour
 {
     [SerializeField] private Animator myAnimator;
-
-    private void OnEnable() {
-        
-    }
-
-    private void OnDisable() {
-        
-    }
-
     /// <summary>
     /// Metodo <c>SetVelocity</c> define el valor de velocidad del animator controller para determinar qué animación ejecutaría.
     /// El valor de la velocidad que se le va a pasar al animator.
@@ -23,10 +12,9 @@ public class AnimatorController : MonoBehaviour
     /// </summary>
     /// <param name="velocityCharacter">El valor de velocidad que se pasa al animator.</param>
     
-    public void SetVelocity(float velocityCharacter){
-        myAnimator.SetFloat("Velocity", velocityCharacter);
+    public void SetAnimationState(int estadoDeAnimacion){
+        myAnimator.SetInteger("animationState", estadoDeAnimacion);
     }
-
     public void SetHurt(){
         myAnimator.SetTrigger("GoHurt");
     }

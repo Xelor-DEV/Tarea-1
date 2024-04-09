@@ -1,35 +1,54 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private Rigidbody2D myRBD2;
-    [SerializeField] private float velocityModifier = 5f;
-    [SerializeField] private float rayDistance = 10f;
+    private Rigidbody2D _compRigidbody2D;
+    private Vector2 direccion;
+    private Vector2 ultimaDireccion = new Vector2(1, 0);
+    [SerializeField] private int velocidad;
+    private int estadoDeAnimacion = 0;
     [SerializeField] private AnimatorController animatorController;
-    [SerializeField] private SpriteRenderer spriteRenderer;
-
-    private void Update() {
-        Vector2 movementPlayer = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        myRBD2.velocity = movementPlayer * velocityModifier;
-
-        animatorController.SetVelocity(velocityCharacter: myRBD2.velocity.magnitude);
-
-        Vector2 mouseInput = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-        CheckFlip(mouseInput.x);
-    
-        Debug.DrawRay(transform.position, mouseInput.normalized * rayDistance, Color.red);
-
-        if(Input.GetMouseButtonDown(0)){
-            Debug.Log("Right Click");
-        }else if(Input.GetMouseButtonDown(1)){
-            Debug.Log("Left Click");
+    [SerializeField] private GameObject bulletPrefab;
+    void Awake()
+    {
+        _compRigidbody2D = GetComponent<Rigidbody2D>(); 
+    }
+    private void Start()
+    {
+        animatorController.SetAnimationState(estadoDeAnimacion);
+    }
+    public void Movimiento(InputAction.CallbackContext context)
+    {
+        direccion = context.ReadValue<Vector2>();
+        if (direccion != Vector2.zero)
+        {
+            ultimaDireccion = direccion;
         }
     }
-
-    private void CheckFlip(float x_Position){
-        spriteRenderer.flipX = (x_Position - transform.position.x) < 0;
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+        {
+            GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
+            bullet.GetComponent<Rigidbody2D>().velocity = ultimaDireccion * velocidad;
+            BulletController bulletController = bullet.GetComponent<BulletController>();
+            bulletController.Direction = ultimaDireccion;
+        }
+    }
+    void FixedUpdate()
+    {
+        //Movimiento
+        if (direccion.x == 0 && direccion.y == 0)
+        {
+            estadoDeAnimacion = 0;
+            animatorController.SetAnimationState(estadoDeAnimacion);
+        }
+        else
+        {
+            estadoDeAnimacion = 1;
+            animatorController.SetAnimationState(estadoDeAnimacion);
+        }
+        _compRigidbody2D.velocity = new Vector2(direccion.x * velocidad, direccion.y * velocidad);
     }
 }
